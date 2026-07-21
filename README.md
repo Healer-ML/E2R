@@ -1,98 +1,105 @@
 <div align="center">
 
-# E²R
+# E<sup>2</sup>R
 
-### Farmland Remote-Sensing Image-Text Retrieval
+### Fine-Grained Image-Text Retrieval for Farmland Remote Sensing
 
-**Anonymous code release · Paper under review**
+**Anonymous implementation for a paper under review**
+
+[Method](#method) | [FRS-CMR](#frs-cmr) | [Configuration](#experimental-configuration) | [Code](#code-structure) | [Citation](#citation)
 
 </div>
 
-E²R is a cross-modal retrieval framework for fine-grained farmland remote-sensing scenes. It combines global-local alignment with **Representation Suppression (RES)** and **Keyword-based Explicit Reasoning (KER)**. This repository contains the core research implementation and configuration needed to reproduce the method; datasets, checkpoints, logs, and unrelated baseline code are intentionally excluded.
+---
 
-## Framework
+## Abstract
 
-![E2R architecture](figures/e2r-architecture.png)
+Farmland remote-sensing retrieval requires models to distinguish scenes that share similar global layouts but differ in field geometry, vegetation, man-made structures, spectral appearance, and spatial relations. E<sup>2</sup>R addresses this setting with global-local image-text alignment, **Representation Suppression (RES)**, and **Keyword-based Explicit Reasoning (KER)**. The framework is evaluated on FRS-CMR and three public remote-sensing retrieval benchmarks.
 
-*E²R architecture. CLIP encoders extract global and token-level representations; RES suppresses low-confidence positive pairs, while KER predicts masked farmland keywords through cross-modal reasoning.*
+> This anonymous repository contains the core method, reported configuration, and paper figures. Dataset files, pretrained weights, experiment logs, author identities, and unrelated baseline implementations are not included.
+
+## Method
+
+<p align="center">
+  <img src="figures/e2r-architecture.png" width="96%" alt="Architecture of E2R">
+</p>
+
+<p align="center"><b>Figure 1.</b> Overview of E<sup>2</sup>R. CLIP encoders produce global and token-level features. RES suppresses low-confidence positive pairs, while KER reconstructs masked farmland keywords through cross-modal reasoning.</p>
+
+E<sup>2</sup>R contains three complementary components:
+
+1. **Global-local alignment** jointly models scene-level semantics and token-level correspondence.
+2. **RES** maintains a similarity bank and excludes low-confidence positive anchors after the warm-up stage.
+3. **KER** masks frequent farmland terms and predicts them from masked text and visual tokens.
+
+The training objective is
+
+<p align="center"><i>L = 0.7 L<sub>global</sub> + 0.3 L<sub>local</sub> + 0.5 L<sub>mlm</sub>.</i></p>
 
 ## FRS-CMR
 
-![FRS-CMR collection](figures/frs-cmr-collection.png)
+<p align="center">
+  <img src="figures/frs-cmr-collection.png" width="82%" alt="FRS-CMR geographic coverage and examples">
+</p>
 
-*FRS-CMR collection. Farmland imagery is acquired from satellite, UAV, and ground-based platforms across diverse geographic regions and paired with concise retrieval-oriented descriptions.*
+<p align="center"><b>Figure 2.</b> FRS-CMR image collection. Satellite, UAV, and ground-based imagery covers diverse farmland regions and is paired with concise retrieval-oriented descriptions.</p>
 
-![FRS-CMR construction](figures/frs-cmr-construction.png)
+<p align="center">
+  <img src="figures/frs-cmr-construction.png" width="82%" alt="FRS-CMR annotation and statistics">
+</p>
 
-*FRS-CMR construction. A structured prompt guides Qwen2.5-VL-7B-Instruct to describe vegetation cover, field shape, man-made structures, spatial relations, and spectral color; the figure also summarizes vocabulary and regional image counts.*
+<p align="center"><b>Figure 3.</b> FRS-CMR annotation protocol and statistics. The structured prompt covers vegetation, field shape, man-made structures, spatial relations, and spectral color.</p>
 
-Each image is assigned three distinct captions generated with [Qwen2.5-VL-7B-Instruct](https://www.modelscope.cn/models/Qwen/Qwen2.5-VL-7B-Instruct). A randomly sampled 40% of image-caption pairs is independently inspected by four domain experts. Incorrect visual content, spatial relations, redundant details, and inconsistent terminology are revised. The reported Fleiss' kappa range is 0.83-0.89.
+For each image, [Qwen2.5-VL-7B-Instruct](https://www.modelscope.cn/models/Qwen/Qwen2.5-VL-7B-Instruct) generates three short and non-redundant captions. A randomly sampled 40% of image-caption pairs is independently inspected by four domain experts. The review removes hallucinated content, corrects spatial relations, reduces irrelevant detail, and standardizes terminology. The reported Fleiss' kappa is 0.83-0.89.
 
-| Split | Images |
-|---|---:|
-| Train | 18,081 |
-| Validation | 2,260 |
-| Test | 2,261 |
+| Split | Images | Ratio |
+|:--|--:|--:|
+| Train | 18,081 | 80% |
+| Validation | 2,260 | 10% |
+| Test | 2,261 | 10% |
+| **Total** | **22,602** | **100%** |
 
-Dataset files are not distributed in this anonymous code repository.
-
-## Core components
-
-- **Global-local alignment:** jointly optimizes image-text correspondence at representation and token levels.
-- **RES:** activates after warm-up and removes low-confidence positive anchors according to the similarity bank.
-- **KER:** masks frequent farmland keywords and reconstructs them using masked text and visual tokens.
-
-The focused implementation is organized as follows:
-
-```text
-E2R/
-├── configs/frs_cmr.yaml
-├── figures/
-└── src/e2r/
-    ├── model.py          # E²R model, global-local features, RES and KER
-    ├── loss.py           # weighted retrieval and masked-keyword objective
-    ├── train.py          # core optimization loop and RES threshold update
-    ├── data.py           # FRS-CMR CSV dataset interface
-    ├── tokenizer.py      # keyword-aware masking
-    └── clip_blocks.py    # CLIP transformer components
-```
+The dataset itself is not distributed in this anonymous repository.
 
 ## Experimental configuration
 
-| Item | Setting |
-|---|---|
-| Backbone | OpenCLIP ViT-B/32 |
-| Input resolution | 224 × 224 |
-| Context length | 77 tokens |
-| Embedding dimension | 512 |
-| Cross-modal transformer | 2 layers, 8 heads |
-| Training epochs | 50 |
-| Batch size | 128 |
-| Optimizer | AdamW |
-| Initial learning rate | 1.5 × 10⁻⁵ |
-| Weight decay | 0.7 |
-| Schedule | 200-step linear warm-up, then cosine decay |
-| Gradient clipping | 50 |
-| Global / local / MLM weights | 0.7 / 0.3 / 0.5 |
-| RES activation epoch | 4 |
-| FRS-CMR suppression ratio | 1% |
-| Keyword vocabulary | 256 words |
-| Training hardware | 4 × NVIDIA GeForce RTX 3090 |
+| Category | Setting | Value |
+|:--|:--|:--|
+| Backbone | Vision / text encoder | OpenCLIP ViT-B/32 |
+| Backbone | Input resolution | 224 x 224 |
+| Backbone | Context length | 77 tokens |
+| Backbone | Embedding dimension | 512 |
+| KER | Cross-modal transformer | 2 layers, 8 heads |
+| KER | Keyword vocabulary | 256 words |
+| RES | Activation epoch | 4 |
+| RES | Suppression ratio on FRS-CMR | 1% |
+| Optimization | Optimizer | AdamW |
+| Optimization | Epochs / batch size | 50 / 128 |
+| Optimization | Learning rate | 1.5e-5 |
+| Optimization | Weight decay | 0.7 |
+| Optimization | Schedule | 200-step warm-up + cosine decay |
+| Optimization | Gradient clipping | 50 |
+| Hardware | Training devices | 4 x NVIDIA GeForce RTX 3090 |
 
-The experiments initialize both encoders from the same OpenCLIP ViT-B/32 checkpoint. Pretrained weights are not redistributed; set `pretrained_checkpoint` in `configs/frs_cmr.yaml` to a locally obtained OpenCLIP-compatible checkpoint.
+Both encoders are initialized from the same OpenCLIP ViT-B/32 checkpoint. Weights are not redistributed. Set the local checkpoint and dataset paths in [`configs/frs_cmr.yaml`](configs/frs_cmr.yaml).
 
-## Data format
+## Code structure
 
-The CSV loader expects one image-caption pair per row:
-
-```csv
-filename,title
-example/000001.jpg,"Rectangular green fields lie beside a narrow road."
+```text
+E2R/
+|-- configs/
+|   `-- frs_cmr.yaml       # reported FRS-CMR configuration
+|-- figures/               # publication figures (PNG and vector PDF)
+`-- src/e2r/
+    |-- model.py           # global-local features, RES, and KER
+    |-- loss.py            # retrieval and masked-keyword objective
+    |-- train.py           # optimization loop and RES threshold update
+    |-- data.py            # CSV image-caption dataset interface
+    |-- tokenizer.py       # keyword-aware masking
+    `-- clip_blocks.py     # CLIP transformer components
 ```
 
-Update the dataset, checkpoint, BPE, and keyword-vocabulary paths before training. The complete reported configuration is provided in `configs/frs_cmr.yaml`.
-
-## Installation
+## Setup
 
 ```bash
 conda create -n e2r python=3.10 -y
@@ -101,19 +108,29 @@ pip install -r requirements.txt
 export PYTHONPATH="$PWD/src:$PYTHONPATH"
 ```
 
+Expected CSV format:
+
+```csv
+filename,title
+example/000001.jpg,"Rectangular green fields lie beside a narrow road."
+```
+
+Update the dataset root, CSV files, OpenCLIP checkpoint, BPE vocabulary, and farmland keyword vocabulary in the configuration before training.
+
 ## Evaluation
 
-Performance is evaluated using image-to-text and text-to-image Recall@1, Recall@5, Recall@10, and their six-metric mean recall (mR). The reported FRS-CMR result is **30.73% mR**.
+We report Recall@1, Recall@5, and Recall@10 for text-to-image and image-to-text retrieval. Mean recall (mR) is the average of these six values. Under the reported protocol, E<sup>2</sup>R obtains **30.73% mR on FRS-CMR**.
 
 ## Citation
 
 ```bibtex
 @article{anonymous2026e2r,
-  title   = {FRS-Searching: Cross-Modal Image-Text Retrieval in Farmland Remote Sensing with Large Vision-Language Models},
-  author  = {Anonymous},
-  year    = {2026},
-  note    = {Under review}
+  title  = {FRS-Searching: Cross-Modal Image-Text Retrieval in Farmland
+            Remote Sensing with Large Vision-Language Models},
+  author = {Anonymous},
+  year   = {2026},
+  note   = {Under review}
 }
 ```
 
-Author identities and affiliations are intentionally omitted during anonymous review.
+<p align="center"><sub>Author names and affiliations are intentionally withheld during anonymous review.</sub></p>
