@@ -1,0 +1,12 @@
+torch>=2.0
+torchvision>=0.15
+open_clip_torch>=2.24
+pandas>=1.5
+Pillow>=9.0
+numpy>=1.23
+ftfy>=6.1
+regex>=2023.0
+nltk>=3.8
+timm>=0.9
+tqdm>=4.65
+PyYAML>=6.0

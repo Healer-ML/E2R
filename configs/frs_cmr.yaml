@@ -1,0 +1,44 @@
+model:
+  image_backbone: ViT-B-32
+  text_backbone: ViT-B-32
+  builder: openclip
+  pretrained_checkpoint: /path/to/open_clip_pytorch_model.bin
+  bpe_path: /path/to/bpe_simple_vocab_16e6.txt.gz
+  image_resolution: 224
+  context_length: 77
+  embedding_dim: 512
+  cross_modal_layers: 2
+  similarity_queue_size: 200000
+
+data:
+  train_csv: /path/to/frs_cmr/train.csv
+  val_csv: /path/to/frs_cmr/val.csv
+  test_csv: /path/to/frs_cmr/test.csv
+  image_root: /path/to/frs_cmr/images
+  keyword_vocabulary: /path/to/frs_cmr/farm_256_words.txt
+  split: [18081, 2260, 2261]
+  image_key: filename
+  caption_key: title
+
+optimization:
+  optimizer: AdamW
+  epochs: 50
+  batch_size: 128
+  learning_rate: 1.5e-5
+  weight_decay: 0.7
+  warmup_steps: 200
+  schedule: cosine
+  max_gradient_norm: 50.0
+  workers: 8
+
+objective:
+  global_weight: 0.7
+  local_weight: 0.3
+  mlm_weight: 0.5
+  res_start_epoch: 4
+  res_suppression_ratio: 0.01
+  keyword_vocabulary_size: 256
+
+hardware:
+  gpus: 4
+  accelerator: NVIDIA GeForce RTX 3090
