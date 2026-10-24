@@ -13,7 +13,7 @@
 ---
 
 
-> This anonymous repository contains the core method, reported configuration, and paper figures. Dataset files, pretrained weights, experiment logs, author identities, and unrelated baseline implementations are not included.
+> > The complete code and dataset will be released soon.
 
 ## Method
 
