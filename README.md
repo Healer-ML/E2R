@@ -10,9 +10,9 @@
 
 ---
 
-
+<div align="center">
 ## The complete code and dataset will be released soon.
-
+</div>
 ## Method
 
 <p align="center">
