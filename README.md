@@ -109,12 +109,6 @@ filename,title
 example/000001.jpg,"Rectangular green fields lie beside a narrow road."
 ```
 
-Update the dataset root, CSV files, OpenCLIP checkpoint, BPE vocabulary, and farmland keyword vocabulary in the configuration before training.
-
-## Evaluation
-
-We report Recall@1, Recall@5, and Recall@10 for text-to-image and image-to-text retrieval. Mean recall (mR) is the average of these six values. Under the reported protocol, E<sup>2</sup>R obtains **30.73% mR on FRS-CMR**.
-
 ## Citation
 
 ```bibtex
