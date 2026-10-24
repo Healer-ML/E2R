@@ -4,8 +4,6 @@
 
 ### Fine-Grained Image-Text Retrieval for Farmland Remote Sensing
 
-**Anonymous implementation for a paper under review**
-
 [Method](#method) | [FRS-CMR](#frs-cmr) | [Configuration](#experimental-configuration) | [Code](#code-structure) | [Citation](#citation)
 
 </div>
@@ -77,30 +75,6 @@ The dataset itself is not distributed in this anonymous repository.
 
 Both encoders are initialized from the same OpenCLIP ViT-B/32 checkpoint. Weights are not redistributed. Set the local checkpoint and dataset paths in [`configs/frs_cmr.yaml`](configs/frs_cmr.yaml).
 
-## Code structure
-
-```text
-E2R/
-|-- configs/
-|   `-- frs_cmr.yaml       # reported FRS-CMR configuration
-|-- figures/               # publication figures (PNG and vector PDF)
-`-- src/e2r/
-    |-- model.py           # global-local features, RES, and KER
-    |-- loss.py            # retrieval and masked-keyword objective
-    |-- train.py           # optimization loop and RES threshold update
-    |-- data.py            # CSV image-caption dataset interface
-    |-- tokenizer.py       # keyword-aware masking
-    `-- clip_blocks.py     # CLIP transformer components
-```
-
-## Setup
-
-```bash
-conda create -n e2r python=3.10 -y
-conda activate e2r
-pip install -r requirements.txt
-export PYTHONPATH="$PWD/src:$PYTHONPATH"
-```
 
 Expected CSV format:
 
