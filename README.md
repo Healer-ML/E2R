@@ -12,9 +12,6 @@
 
 ---
 
-## Abstract
-
-Farmland remote-sensing retrieval requires models to distinguish scenes that share similar global layouts but differ in field geometry, vegetation, man-made structures, spectral appearance, and spatial relations. E<sup>2</sup>R addresses this setting with global-local image-text alignment, **Representation Suppression (RES)**, and **Keyword-based Explicit Reasoning (KER)**. The framework is evaluated on FRS-CMR and three public remote-sensing retrieval benchmarks.
 
 > This anonymous repository contains the core method, reported configuration, and paper figures. Dataset files, pretrained weights, experiment logs, author identities, and unrelated baseline implementations are not included.
 
@@ -32,9 +29,6 @@ E<sup>2</sup>R contains three complementary components:
 2. **RES** maintains a similarity bank and excludes low-confidence positive anchors after the warm-up stage.
 3. **KER** masks frequent farmland terms and predicts them from masked text and visual tokens.
 
-The training objective is
-
-<p align="center"><i>L = 0.7 L<sub>global</sub> + 0.3 L<sub>local</sub> + 0.5 L<sub>mlm</sub>.</i></p>
 
 ## FRS-CMR
 
